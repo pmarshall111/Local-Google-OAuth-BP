@@ -56,7 +56,7 @@ module.exports = function(app) {
 
   app.post("/auth/signup", function(req, res, next) {
     passport.authenticate("local-signup", (err, user, info) => {
-      console.log(err, user, info);
+      console.log(err, user, info, "from authRoutes");
       if (info) res.send(info);
       else {
         req.login(user, err => {

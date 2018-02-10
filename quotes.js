@@ -1,4 +1,4 @@
-[
+module.exports = [
   [
     "Life isn’t about getting and having, it’s about giving and being.",
     "Kevin Kruse"

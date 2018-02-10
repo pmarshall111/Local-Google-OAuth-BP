@@ -12,7 +12,7 @@ const localLogin = new LocalStrategy(LocalOptions, function(
   password,
   done
 ) {
-  console.log(email, password);
+  console.log({ email, password });
   Users.findOne({ email }, function(err, user) {
     if (err) return done(err, false, { error: "Database lookup error" });
     if (!user)

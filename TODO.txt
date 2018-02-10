@@ -1,0 +1,9 @@
+- add deletion routes
+- date splitting so that if the start date of a time is before the finish date of a target, but the
+time goes on for longer than the target, we split the time spent to 2 targets
+
+- need a way of auto generating a new target when the old one expires. perhaps a cronjob to ping
+the server every minute?
+
+- think about how to calculate stats. do we want to calculate it on the backend, or just send all the
+data to the frontend and let the client figure it out?

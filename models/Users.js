@@ -1,16 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const goalsSchema = require("./Goals");
-const timeSchema = require("./Time");
 
 const userSchema = new Schema({
   name: String,
   email: String,
   password: String,
   googleID: String,
-  goals: [goalsSchema],
-  timeSpent: []
+  improvementAreas: [{ type: Schema.Types.ObjectId, ref: "improvement-areas" }]
 });
 
 //encrypting the password before it's saved to the database.
