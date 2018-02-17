@@ -20,7 +20,7 @@ passport.use(
       //the traffic is going through and to keep it https.
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log(profile);
+      console.log(profile, "profule");
       var match = await User.findOne({ googleID: profile.id });
       if (match) return done(null, match);
 
@@ -29,7 +29,7 @@ passport.use(
         email: profile.emails[0].value,
         name: profile.name.givenName
       });
-      console.log(user);
+      console.log(user, "user");
       done(null, user);
     }
   )

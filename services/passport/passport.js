@@ -7,10 +7,19 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
-  User.findOne({ _id: id }).then(user => {
-    //so that we don't send back the user password, even though it's encrypted
-    var result = { _id: user._id, email: user.email };
-    done(null, result);
-  });
+passport.deserializeUser(async (id, done) => {
+  try {
+    var user = User.findOne({ _id: id }).populate({
+      path: "improvementAreas",
+      populate: {
+        path: "targetCollections",
+        populate: { path: "targets", populate: { path: "timeSpent" } }
+      }
+    });
+
+    user.password = null;
+    done(null, user);
+  } catch (e) {
+    done(e);
+  }
 });

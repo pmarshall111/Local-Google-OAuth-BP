@@ -1,13 +1,19 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const targetSchema = require("./Targets");
-
 const areaSchema = new Schema({
   subject: String,
   user: { type: Schema.Types.ObjectId, ref: "users" },
-  targets: [{ type: Schema.Types.ObjectId, ref: "targets" }],
-  active: { type: Boolean, default: true }
+  targetCollections: [
+    { type: Schema.Types.ObjectId, ref: "target-collections" }
+  ]
+});
+
+areaSchema.pre("remove", async next => {
+  var TargetCollection = mongoose.model("target-collections");
+  var collections = this.targetCollections;
+  await TargetCollection.remove({ _id: { $in: collections } });
+  next();
 });
 
 const ImprovementAreas = mongoose.model("improvement-areas", areaSchema);

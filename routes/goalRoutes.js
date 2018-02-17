@@ -3,6 +3,10 @@ const Users = mongoose.model("users");
 const ImprovementArea = mongoose.model("improvement-areas");
 const Targets = mongoose.model("targets");
 const Time = mongoose.model("time");
+const TargetCollection = mongoose.model("target-collections");
+
+const moment = require("moment");
+moment().format();
 
 function requireLogIn(req, res, next) {
   if (!req.user)
@@ -13,47 +17,75 @@ function requireLogIn(req, res, next) {
 }
 
 module.exports = app => {
+  ////////////////////////////
+  //UNTESTED
+  ///////////////////////////
+
   app.post("/area/new", requireLogIn, async (req, res) => {
-    var { subject, targets } = req.body;
+    //Could be 4 steps instead if we first create target, then collection, then goal, then user.
+
+    var { subject, targetCollections } = req.body;
 
     //validation can come on the client side as to whether the user already has an area with this name.
     //this is because we will call populate when sending the users details back
+
     try {
-      var newArea = await ImprovementArea.create({
-        subject,
-        user: req.user._id
-      });
+      var newTargets = await Promise.all([
+        targetCollections.map(target => {
+          var timePeriod = moment(0).days(target.timePeriod);
+          var startDate = moment().startOf("day");
+          var finishDate = moment()
+            .startOf("day")
+            .add(timePeriod, "days");
+          var targetTime = moment(0).hour(target.targetTime);
 
-      targets = targets.map(target => {
-        const { repeating, targetTime, period, finishDate } = target;
-        return {
-          insertOne: {
-            document: {
-              repeating,
-              targetTime,
-              finishDate,
-              period,
-              improvementArea: newArea._id,
-              user: req.user._id
-            }
-          }
-        };
-      });
-
-      var [newTargets, updatedUser] = await Promise.all([
-        Targets.bulkWrite(targets),
-        Users.findOneAndUpdate(
-          { _id: req.user._id },
-          { $push: { improvementAreas: newArea._id } },
-          { new: true }
-        )
+          return Targets.create({
+            startDate,
+            finishDate,
+            targetTime,
+            user: req.user._id
+          });
+        })
       ]);
 
-      Object.values(newTargets.insertedIds).forEach(id =>
-        newArea.targets.push(id)
-      );
+      var newTargetCollections = await Promise.all([
+        targetCollections.map((target, idx) => {
+          var { repeating, targetTime, timePeriod } = target;
+          targetTime = moment(0).hour(targetTime);
+          timePeriod = moment(0).days(timePeriod);
 
-      var savedTargets = await newArea.save();
+          var targets = [newTargets[idx]];
+          var startDate = moment().startOf("day");
+
+          return TargetCollection.create({
+            repeating,
+            targetTime,
+            startDate,
+            timePeriod,
+            targets,
+            user: req.user._id
+          });
+        })
+      ]);
+
+      var newGoal = await ImprovementArea.create({
+        subject,
+        user: req.user._id,
+        targetCollections: [...newTargetCollections]
+      });
+
+      var updatedUser = await Users.findOneAndUpdate(
+        { _id: req.user._id },
+        { $push: { improvementAreas: newArea._id } },
+        { new: true }
+      ).populate({
+        path: "improvementAreas",
+        populate: {
+          path: "targetCollections",
+          populate: { path: "targets", populate: { path: "timeSpent" } }
+        }
+      });
+
       //need to have a think about what is best to send back... possibly the newUser with populate so front end has all the data
       res.send(updatedUser);
     } catch (e) {
@@ -62,22 +94,21 @@ module.exports = app => {
     }
   });
 
-  app.post("/area/toggleActive", requireLogIn, async (req, res) => {
-    //want to be sending along the ID of the area we want to toggle.
+  //UNTESTED
+  app.post("/area/remove", requireLogin, async (req, res) => {
+    //each model has a pre-remove hook on it that will remove children
 
-    const area = req.body.areaId;
+    //checking that area exists
+    const goalId = req.body;
+    const goals = req.user._id.improvementAreas;
+    if (!goals.includes(goalId))
+      return res.send({ error: "We could not find that goal" });
 
-    //need to add in verification step so that a user can only toggle their own area
-    const usersAreas = req.user._id.improvementAreas;
-    if (!usersAreas.includes(area))
-      return res.send({ error: "You can only edit your own areas" });
-
-    var selectedArea = await ImprovementArea.findById(area);
-    var updated = await ImprovementArea.findOneAndUpdate(
-      { _id: area },
-      { active: !selectedArea.active },
-      { new: true }
+    await ImprovementArea.remove({ _id: goalId });
+    req.user.improvementAreas = req.user.improvementAreas.filter(
+      x => x._id != goalId
     );
-    res.send(updated);
+
+    res.send(req.user);
   });
 };

@@ -40,6 +40,18 @@ userSchema.methods.comparePassword = function(attempt, callback) {
   });
 };
 
+areaSchema.pre("remove", async next => {
+  //time is in here as we only want to remove time spent when user deletes account
+  var Time = mongoose.model("time");
+  var ImprovementArea = mongoose.model("improvement-areas");
+  var areas = this.targetCollections;
+  await Promise.all([
+    Time.remove({ user: this._id }),
+    ImprovementArea.remove({ _id: { $in: areas } })
+  ]);
+  next();
+});
+
 const User = mongoose.model("users", userSchema);
 
 module.exports = User;
