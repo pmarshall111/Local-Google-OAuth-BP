@@ -9,7 +9,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    var user = User.findOne({ _id: id }).populate({
+    var user = await User.findOne({ _id: id }).populate({
       path: "improvementAreas",
       populate: {
         path: "targets time"

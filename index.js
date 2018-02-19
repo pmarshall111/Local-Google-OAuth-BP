@@ -1,25 +1,23 @@
 const mongoose = require("mongoose");
 
-var option = {
-  keepAlive: 300000,
-  connectTimeoutMS: 30000
-};
+const info = require("./config/keys").indexInfo;
 //mongoose&&model setup
 mongoose.Promise = global.Promise;
 mongoose
-  .connect("mongodb://localhost/time-counter", option)
+  .connect(info.db)
   .then(() => {
-    console.log("connected");
-    require("./models/Users");
-    require("./models/ImprovementArea");
-    require("./models/Targets");
-    require("./models/Time");
-
-    const app = require("./app");
-    const PORT = process.env.PORT || 5000;
-
-    app.listen(PORT, () => {
-      console.log("app is go: " + PORT);
-    });
+    console.log(`connected to ${info.db}`);
   })
   .catch(e => console.log(e));
+
+require("./models/Users");
+require("./models/ImprovementArea");
+require("./models/Targets");
+require("./models/Time");
+
+const app = require("./app");
+const PORT = info.port;
+
+app.listen(PORT, () => {
+  console.log("app is go: " + PORT);
+});

@@ -22,7 +22,7 @@ module.exports = app => {
   //UNTESTED
   ///////////////////////////
 
-  app.post("/area/new", requireLogIn, async (req, res) => {
+  app.post("/area/new", requireLogIn, async (req, res, next) => {
     var { subject, targets } = req.body;
 
     //create targets. create goal and link target before save. add goal to user and send back user.
@@ -30,7 +30,8 @@ module.exports = app => {
     try {
       var newTargets = await Promise.all(
         targets.map(target => {
-          var timePeriod = moment(0).days(target.timePeriod);
+          var timePeriod = moment(0).dayOfYear(target.timePeriod);
+          console.log({ t: target.timePeriod });
           var startDate = moment().startOf("day");
           var targetTime = moment(0).hour(target.targetTime);
 
@@ -56,15 +57,15 @@ module.exports = app => {
       ).populate({
         path: "improvementAreas",
         populate: {
-          path: "targetCollections",
-          populate: { path: "targets", populate: { path: "timeSpent" } }
+          path: "targets time"
         }
       });
 
       res.send(updatedUser);
     } catch (e) {
       console.log(e);
-      res.send({ error: "Database error" });
+      next(e);
+      // res.send({ error: "Database error" });
     }
   });
 
@@ -73,15 +74,19 @@ module.exports = app => {
     //each model has a pre-remove hook on it that will remove children
 
     //checking that area belongs to user
-    const goalId = req.body;
-    const goals = req.user._id.improvementAreas;
-    if (!goals.includes(goalId))
+    const { goalId } = req.body;
+    const oneGoal = req.user.improvementAreas.filter(x => x._id.toString());
+
+    if (oneGoal.length === 0)
       return res.send({ error: "We could not find that goal" });
 
     try {
-      var success = await ImprovementArea.remove({ _id: goalId });
+      //to trigger the pre-remove hook we need to call remove method... it doesn't work
+      //if we try to use findAndRemove.
+      var mongoGoal = await ImprovementArea.findById(goalId);
+      var remove = await mongoGoal.remove();
 
-      if (success) {
+      if (remove) {
         req.user.improvementAreas = req.user.improvementAreas.filter(
           x => x._id != goalId
         );

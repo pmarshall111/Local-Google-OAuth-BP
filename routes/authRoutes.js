@@ -14,11 +14,13 @@ module.exports = function(app) {
   }
 
   app.get("/current-user", (req, res) => {
+    console.log(req.user);
     if (req.user) return res.send({ user: req.user });
     res.send({ error: "User not currently logged in" });
   });
 
   app.get("/logout", (req, res) => {
+    console.log("in logout");
     //this is a function added by passport to the req object
     req.logout();
     //prop added by cookie-session which we need to use to remove the cookie once we logout

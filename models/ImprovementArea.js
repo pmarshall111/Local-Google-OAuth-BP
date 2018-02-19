@@ -13,12 +13,14 @@ const areaSchema = new Schema({
   ]
 });
 
-areaSchema.pre("remove", async next => {
+areaSchema.pre("remove", async function(next) {
   var Targets = mongoose.model("targets");
   var Time = mongoose.model("time");
-
+  console.log("in pre section");
   var myTargets = this.targets,
     myTime = this.time;
+
+  console.log(myTargets);
   await Promise.all([
     Targets.remove({ _id: { $in: myTargets } }),
     Time.remove({ _id: { $in: myTime } })

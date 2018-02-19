@@ -53,7 +53,7 @@ module.exports = app => {
           error: "You can only add targets to your own Improvement areas"
         });
 
-      timePeriod = moment(0).days(timePeriod);
+      timePeriod = moment(0).dayOfYear(timePeriod);
       startDate = moment().startOf("day");
       targetTime = moment(0).hour(targetTime);
 
