@@ -35,11 +35,12 @@ module.exports = app => {
     if (currentGoals.targets.length === 0)
       return res.send({ todo: "Need to add updating target route" });
 
-    const { timeStarted, timeFinished, tags } = req.body.time;
+    const { timeStarted, timeFinished, tags, mood } = req.body.time;
     var newTime = await Time.create({
       timeStarted,
       timeFinished,
       tags,
+      mood,
       user: req.user._id
     });
 

@@ -12,8 +12,7 @@ passport.deserializeUser(async (id, done) => {
     var user = User.findOne({ _id: id }).populate({
       path: "improvementAreas",
       populate: {
-        path: "targetCollections",
-        populate: { path: "targets", populate: { path: "timeSpent" } }
+        path: "targets time"
       }
     });
 

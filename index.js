@@ -12,7 +12,6 @@ mongoose
     console.log("connected");
     require("./models/Users");
     require("./models/ImprovementArea");
-    require("./models/TargetCollection");
     require("./models/Targets");
     require("./models/Time");
 

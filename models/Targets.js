@@ -5,10 +5,10 @@ const timeSchema = require("./Time");
 
 const targetSchema = new Schema({
   startDate: Date,
-  finishDate: Date,
   targetTime: Date,
-  timeSpent: [{ type: Schema.Types.ObjectId, ref: "time" }],
-  user: { type: Schema.Types.ObjectId, ref: "users" }
+  timePeriod: Date,
+  user: { type: Schema.Types.ObjectId, ref: "users" },
+  fillAllWeeks: { type: Boolean, default: true }
 });
 
 //we don't remove time in here as it may apply to other targetcollections

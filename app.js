@@ -10,7 +10,6 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const quoteRoutes = require("./routes/quoteRoutes");
 const goalRoutes = require("./routes/goalRoutes");
-const targetCollectionRoutes = require("./routes/targetCollectionRoutes");
 const targetRoutes = require("./routes/targetRoutes");
 const timeRoutes = require("./routes/timeRoutes");
 
@@ -31,7 +30,6 @@ app.use(bodyParser.json());
 authRoutes(app);
 quoteRoutes(app);
 goalRoutes(app);
-targetCollectionRoutes(app);
 targetRoutes(app);
 timeRoutes(app);
 
