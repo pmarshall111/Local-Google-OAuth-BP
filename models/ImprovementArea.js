@@ -16,7 +16,6 @@ const areaSchema = new Schema({
 areaSchema.pre("remove", async function(next) {
   var Targets = mongoose.model("targets");
   var Time = mongoose.model("time");
-  console.log("in pre section");
   var myTargets = this.targets,
     myTime = this.time;
 

@@ -31,7 +31,6 @@ module.exports = app => {
       var newTargets = await Promise.all(
         targets.map(target => {
           var timePeriod = moment(0).dayOfYear(target.timePeriod);
-          console.log({ t: target.timePeriod });
           var startDate = moment().startOf("day");
           var targetTime = moment(0).hour(target.targetTime);
 
@@ -63,9 +62,9 @@ module.exports = app => {
 
       res.send(updatedUser);
     } catch (e) {
-      console.log(e);
-      next(e);
-      // res.send({ error: "Database error" });
+      // console.log(e);
+      // next(e);
+      res.send({ error: "Database error" });
     }
   });
 
@@ -75,7 +74,9 @@ module.exports = app => {
 
     //checking that area belongs to user
     const { goalId } = req.body;
-    const oneGoal = req.user.improvementAreas.filter(x => x._id.toString());
+    const oneGoal = req.user.improvementAreas.filter(
+      x => x._id.toString() == goalId.toString()
+    );
 
     if (oneGoal.length === 0)
       return res.send({ error: "We could not find that goal" });
@@ -93,7 +94,7 @@ module.exports = app => {
         res.send(req.user);
       }
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       res.send({ error: "Database error" });
     }
   });

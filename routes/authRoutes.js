@@ -14,13 +14,12 @@ module.exports = function(app) {
   }
 
   app.get("/current-user", (req, res) => {
-    console.log(req.user);
+    // console.log(req.user);
     if (req.user) return res.send({ user: req.user });
     res.send({ error: "User not currently logged in" });
   });
 
   app.get("/logout", (req, res) => {
-    console.log("in logout");
     //this is a function added by passport to the req object
     req.logout();
     //prop added by cookie-session which we need to use to remove the cookie once we logout
@@ -44,8 +43,10 @@ module.exports = function(app) {
   //local routes. Added in callback function so we can deal with errors from authentication.
   //http://www.passportjs.org/docs/authenticate/ at the bottom
   app.post("/auth/login", function(req, res, next) {
+    if (req.user)
+      return res.status(400).send({ error: "User already logged in" });
     passport.authenticate("local-login", (err, user, info) => {
-      console.log(err, user, info);
+      // console.log(err, user, info);
       if (info) res.send(info);
       else {
         req.login(user, err => {
@@ -57,8 +58,10 @@ module.exports = function(app) {
   });
 
   app.post("/auth/signup", function(req, res, next) {
+    if (req.user)
+      return res.status(400).send({ error: "User already logged in" });
     passport.authenticate("local-signup", (err, user, info) => {
-      console.log(err, user, info, "from authRoutes");
+      // console.log(err, user, info, "from authRoutes");
       if (info) res.send(info);
       else {
         req.login(user, err => {

@@ -33,9 +33,19 @@ describe("auth routes", () => {
   });
   it("check if cookie returns the user we made. call to /current-user", done => {
     agent.get("/current-user").then(response => {
-      assert.equal(response.body.user.email, "test");
+      assert.ok(response.body.user.email === "test");
       done();
     });
+  });
+
+  it("cannot create an account if logged in", done => {
+    agent
+      .post("/auth/signup")
+      .send({ email: "test1", password: "plsDontLetMeDoThis" })
+      .then(response => {
+        assert.ok(response.body.error);
+        done();
+      });
   });
 
   it("/logout removes cookie", function(done) {

@@ -72,4 +72,43 @@ describe("testing goal routes", () => {
     assert.equal(returnedUser.improvementAreas.length, 0);
     done();
   });
+
+  var secondArea;
+
+  it("can add multiple targets to the same improvement area", done => {
+    agent
+      .post("/area/new")
+      .send({
+        subject: "testing our API",
+        targets: [
+          {
+            timePeriod: 7,
+            targetTime: 35
+          },
+          {
+            timePeriod: 1,
+            targetTime: 5
+          }
+        ]
+      })
+      .then(response => {
+        assert.equal(response.body.improvementAreas[0].targets.length, 2);
+        secondArea = response.body.improvementAreas[0];
+        done();
+      });
+  });
+
+  it("will remove both targets when removed", done => {
+    agent
+      .post("/area/remove")
+      .send({ goalId: secondArea._id })
+      .then(response => {
+        Targets.count().then(count => {
+          assert.equal(count, 0);
+          done();
+        });
+      });
+  });
 });
+
+module.exports = agent;

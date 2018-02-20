@@ -17,41 +17,37 @@ module.exports = app => {
     //we need the goal id that we can use to get active targets to add the time to
 
     //currently not a valid ObjectId
-    const { goalId } = req.body;
+    const { goalId, time } = req.body;
 
-    //find goal, and populate targets that have a finishDate in the future
-
-    var currentGoals = await ImprovementArea.findById(goalId).populate({
-      path: "targets",
-      match: { finishDate: { $gt: new Date(Date.now()) } },
-      select: "_id"
-    });
-
-    if (currentGoals.user.toString() != req.user._id)
-      return res.send({ error: "You can only add time to your own goals" });
-
-    //if no current targets, we need to call a route that can refresh targets
-    //Would be cool if we calculated when the finish time was and added any time before then to previous route
-    if (currentGoals.targets.length === 0)
-      return res.send({ todo: "Need to add updating target route" });
-
-    const { timeStarted, timeFinished, tags, mood } = req.body.time;
-    var newTime = await Time.create({
-      timeStarted,
-      timeFinished,
-      tags,
-      mood,
-      user: req.user._id
-    });
-
-    var targetsToUpdate = await Promise.all(
-      currentGoals.targets.map(target => Targets.findById(target))
+    //validation
+    const oneGoal = req.user.improvementAreas.filter(
+      x => x._id.toString() == goalId.toString()
     );
 
-    targetsToUpdate.forEach(target => target.timeSpent.push(newTime._id));
+    if (oneGoal.length === 0)
+      return res.send({ error: "We could not find that goal" });
 
-    var updatedTargets = Promise.all(targetsToUpdate.map(x => x.save()));
+    //create time, then add it to goal. then send back edited user.
 
-    res.send({ updatedTargets: targetsToUpdate });
+    var { timeStarted, timeFinished, mood, tags } = time;
+    const newTime = await Time.create({
+      timeStarted,
+      timeFinished,
+      mood,
+      tags
+    });
+
+    const updatedGoal = await ImprovementArea.findOneAndUpdate(
+      { _id: oneGoal[0]._id },
+      { $push: { time: newTime } },
+      { new: true }
+    );
+
+    req.user.improvementAreas = req.user.improvementAreas.map(x => {
+      if (x._id.toString() == updatedGoal._id.toString()) return updatedGoal;
+      return x;
+    });
+
+    res.send(req.user);
   });
 };
