@@ -73,6 +73,15 @@ describe("testing goal routes", () => {
     done();
   });
 
+  var User = mongoose.model("users");
+
+  it("removes the improvement area from the user database record", done => {
+    User.findById(returnedUser._id).then(resp => {
+      assert.equal(resp.improvementAreas.length, 0);
+      done();
+    });
+  });
+
   var secondArea;
 
   it("can add multiple targets to the same improvement area", done => {

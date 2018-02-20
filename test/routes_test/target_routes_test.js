@@ -99,7 +99,6 @@ describe("target routes", () => {
         targetId: createdTarget._id
       })
       .then(response => {
-        console.log(response.body);
         assert.equal(response.body.improvementAreas[0].targets.length, 1);
         done();
       });

@@ -7,4 +7,4 @@
 //that the last to be required in through the chain will go first and we can guarantee
 //an order.
 
-require("./routes_test/misc_routes_test");
+require("./routes_test/user_and_misc_routes_test");

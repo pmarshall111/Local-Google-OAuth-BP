@@ -12,6 +12,7 @@ const quoteRoutes = require("./routes/quoteRoutes");
 const goalRoutes = require("./routes/goalRoutes");
 const targetRoutes = require("./routes/targetRoutes");
 const timeRoutes = require("./routes/timeRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 
@@ -33,6 +34,7 @@ quoteRoutes(app);
 goalRoutes(app);
 targetRoutes(app);
 timeRoutes(app);
+userRoutes(app);
 
 app.use((err, req, res, next) => {
   res.status(422).send({ error: err.message });

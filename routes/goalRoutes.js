@@ -84,6 +84,7 @@ module.exports = app => {
     try {
       //to trigger the pre-remove hook we need to call remove method... it doesn't work
       //if we try to use findAndRemove.
+      //we remove associated documents in pre-remove tag including link on user
       var mongoGoal = await ImprovementArea.findById(goalId);
       var remove = await mongoGoal.remove();
 

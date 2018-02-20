@@ -16,11 +16,16 @@ const areaSchema = new Schema({
 areaSchema.pre("remove", async function(next) {
   var Targets = mongoose.model("targets");
   var Time = mongoose.model("time");
+  var User = mongoose.model("users");
   var myTargets = this.targets,
-    myTime = this.time;
-
-  console.log(myTargets);
-  await Promise.all([
+    myTime = this.time,
+    myUser = this.user;
+  var result = await Promise.all([
+    User.findOneAndUpdate(
+      { _id: myUser },
+      { $pull: { improvementAreas: this._id } },
+      { new: true }
+    ),
     Targets.remove({ _id: { $in: myTargets } }),
     Time.remove({ _id: { $in: myTime } })
   ]);

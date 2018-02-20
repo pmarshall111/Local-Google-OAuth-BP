@@ -40,10 +40,15 @@ userSchema.methods.comparePassword = function(attempt, callback) {
   });
 };
 
-userSchema.pre("remove", async next => {
+userSchema.pre("remove", async function(next) {
   var ImprovementArea = mongoose.model("improvement-areas");
-  var areas = this.targetCollections;
-  await ImprovementArea.remove({ _id: { $in: areas } });
+  var areas = this.improvementAreas;
+  if (areas.length > 0) {
+    //cant call remove on the model as this doesnt trigger the pre-remove tags.
+    //have to find the individual document first then call remove on it
+    var toGo = await ImprovementArea.find({ _id: { $in: areas } });
+    await Promise.all(toGo.map(x => x.remove()));
+  }
   next();
 });
 

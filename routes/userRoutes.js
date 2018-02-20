@@ -18,8 +18,12 @@ function requireLogIn(req, res, next) {
 module.exports = app => {
   app.get("/user/remove", requireLogIn, async (req, res) => {
     try {
-      await Users.findOneAndRemove({ _id: req.user._id });
+      var userId = req.user._id;
+      req.logout();
+      req.session = null;
 
+      var dbUser = await Users.findById(userId);
+      await dbUser.remove();
       res.send({ info: "Account removed!" });
     } catch (e) {
       console.log(e);
@@ -28,20 +32,17 @@ module.exports = app => {
   });
 
   app.post("/user/update", requireLogIn, async (req, res) => {
+    var updates = req.body;
     try {
-      var updatedUser = await Users.findAndUpdate(
-        { id: req.user._id },
-        {
-          ...req.body.updates
-        },
-        { new: true }
-      ).populate({
-        path: "improvementAreas",
-        populate: {
-          path: "targetCollections",
-          populate: { path: "targets", populate: { path: "timeSpent" } }
-        }
-      });
+      var user = await Users.findById(req.user._id);
+
+      var updateKeys = Object.keys(updates),
+        updateValues = Object.values(updates);
+      for (var i = 0; i < updateKeys.length; i++) {
+        user[updateKeys[i]] = updateValues[i];
+      }
+
+      var updatedUser = await user.save();
 
       res.send(updatedUser);
     } catch (e) {
