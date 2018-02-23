@@ -3,7 +3,8 @@ require("../services/passport/google-strategy");
 require("../services/passport/local-strategy");
 const passport = require("passport");
 
-//need to add in a way to merge accounts if someone wants to login with both google and user/pass
+const env = process.env.NODE_ENV || "development";
+const ROOT_URL = env === "development" ? "http://localhost:3000/home" : "/";
 
 //this function takes our app object and attaches these routes to it
 module.exports = function(app) {
@@ -36,7 +37,7 @@ module.exports = function(app) {
     "/auth/google/callback",
     passport.authenticate("google"),
     (req, res) => {
-      res.redirect("/");
+      res.redirect(ROOT_URL);
     }
   );
 
@@ -58,6 +59,7 @@ module.exports = function(app) {
   });
 
   app.post("/auth/signup", function(req, res, next) {
+    // console.log(req);
     if (req.user)
       return res.status(400).send({ error: "User already logged in" });
     passport.authenticate("local-signup", (err, user, info) => {
