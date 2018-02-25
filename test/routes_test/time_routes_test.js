@@ -52,6 +52,37 @@ describe("time routes", () => {
     assert.ok(!returnedUser.password);
     done();
   });
+
+  it("does not add duplicate tags to a user", done => {
+    agent
+      .post("/time/new")
+      .send({
+        goalId: currentGoal._id,
+        time: [
+          {
+            timeStarted: moment().hour(20),
+            timeFinished: moment(),
+            tags: ["testing", "mocha", "supertest"],
+            sessions: [
+              {
+                timeStarted: moment().hour(20),
+                timeFinished: moment().hour(21)
+              },
+              {
+                timeStarted: moment().hour(21.5),
+                timeFinished: moment().hour(22)
+              }
+            ],
+            mood: 2
+          }
+        ]
+      })
+      .then(response => {
+        console.log(response.body);
+        assert.equal(response.body.tags.length, 3);
+        done();
+      });
+  });
 });
 
 module.exports = agent;

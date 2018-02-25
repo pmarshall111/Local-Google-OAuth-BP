@@ -54,7 +54,7 @@ module.exports = app => {
 
     var updatedUser = await Users.findOneAndUpdate(
       { _id: req.user._id },
-      { $push: { tags: { $each: tags } } },
+      { $addToSet: { tags: { $each: tags } } },
       { new: true }
     ).populate({
       path: "improvementAreas",
