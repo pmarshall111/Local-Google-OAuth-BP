@@ -8,7 +8,8 @@ const areaSchema = new Schema({
   targets: [{ type: Schema.Types.ObjectId, ref: "targets" }],
   time: [
     {
-      type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId,
+      ref: "time"
     }
   ]
 });

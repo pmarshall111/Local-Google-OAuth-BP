@@ -14,24 +14,43 @@ describe("time routes", () => {
       done();
     });
   });
-  var createdTime;
+  var returnedUser;
   it("can add time to an existing goal", done => {
     agent
       .post("/time/new")
       .send({
         goalId: currentGoal._id,
-        time: {
-          timeStarted: moment().hour(20),
-          timeFinished: moment(),
-          tags: ["testing, mocha, supertest"],
-          mood: 2
-        }
+        time: [
+          {
+            timeStarted: moment().hour(20),
+            timeFinished: moment(),
+            tags: ["testing", "mocha", "supertest"],
+            sessions: [
+              {
+                timeStarted: moment().hour(20),
+                timeFinished: moment().hour(21)
+              },
+              {
+                timeStarted: moment().hour(21.5),
+                timeFinished: moment().hour(22)
+              }
+            ],
+            mood: 2
+          }
+        ]
       })
       .then(response => {
-        createdTime = response.body.improvementAreas[0].time[0];
+        // console.log(response);
+        returnedUser = response.body;
         assert.equal(response.body.improvementAreas[0].time.length, 1);
         done();
       });
+  });
+
+  it("does not send back user's password on creating new time", done => {
+    console.log(returnedUser);
+    assert.ok(!returnedUser.password);
+    done();
   });
 });
 

@@ -38,6 +38,13 @@ describe("auth routes", () => {
     });
   });
 
+  it("does not return the users password in the response", done => {
+    agent.get("/current-user").then(response => {
+      assert.ok(!response.body.user.password);
+      done();
+    });
+  });
+
   it("cannot create an account if logged in", done => {
     agent
       .post("/auth/signup")
@@ -57,7 +64,6 @@ describe("auth routes", () => {
 
   it("has actually logged out the user. Call to /current-user", done => {
     agent.get("/current-user").then(response => {
-      console.log(response.body);
       assert.ok(response.body.error);
       done();
     });

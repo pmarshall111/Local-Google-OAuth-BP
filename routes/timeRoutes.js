@@ -15,7 +15,6 @@ function requireLogIn(req, res, next) {
 module.exports = app => {
   app.post("/time/new", requireLogIn, async (req, res) => {
     //we need the goal id that we can use to get active targets to add the time to
-
     //currently not a valid ObjectId
     const { goalId, time } = req.body;
 
@@ -28,26 +27,54 @@ module.exports = app => {
       return res.send({ error: "We could not find that goal" });
 
     //create time, then add it to goal. then send back edited user.
+    var { mood, tags } = time[0];
 
-    var { timeStarted, timeFinished, mood, tags } = time;
-    const newTime = await Time.create({
-      timeStarted,
-      timeFinished,
-      mood,
-      tags
-    });
+    var newTimes = await Promise.all(
+      time.map(x => {
+        var { timeStarted, timeFinished, sessions } = x;
+        return Time.create({
+          timeStarted,
+          timeFinished,
+          sessions,
+          mood,
+          tags
+        });
+      })
+    );
+
+    console.log(newTimes);
 
     const updatedGoal = await ImprovementArea.findOneAndUpdate(
       { _id: oneGoal[0]._id },
-      { $push: { time: newTime } },
+      { $addToSet: { time: { $each: newTimes } } },
       { new: true }
     );
 
-    req.user.improvementAreas = req.user.improvementAreas.map(x => {
-      if (x._id.toString() == updatedGoal._id.toString()) return updatedGoal;
-      return x;
+    console.log(updatedGoal);
+
+    var updatedUser = await Users.findOneAndUpdate(
+      { _id: req.user._id },
+      { $push: { tags: { $each: tags } } },
+      { new: true }
+    ).populate({
+      path: "improvementAreas",
+      populate: {
+        path: "targets time"
+      }
     });
 
-    res.send(req.user);
+    updatedUser.password = null;
+
+    console.log(updatedUser);
+    console.log(
+      updatedUser.improvementAreas[updatedUser.improvementAreas.length - 1]
+    );
+    res.send(updatedUser);
+    // req.user.improvementAreas = req.user.improvementAreas.map(x => {
+    //   if (x._id.toString() == updatedGoal._id.toString()) return updatedGoal;
+    //   return x;
+    // });
+
+    // res.send(req.user);
   });
 };

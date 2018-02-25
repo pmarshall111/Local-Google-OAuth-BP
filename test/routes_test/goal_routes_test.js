@@ -6,7 +6,7 @@ const moment = require("moment");
 moment().format();
 
 describe("testing goal routes", () => {
-  var createdTarget, createdArea;
+  var createdTarget, createdArea, returnedUser;
   it("can create a new goal with 1 target", done => {
     agent
       .post("/area/new")
@@ -24,11 +24,17 @@ describe("testing goal routes", () => {
           response.body.improvementAreas[0].subject,
           "testing our API"
         );
+        returnedUser = response.body;
         createdArea = response.body.improvementAreas[0];
         createdTarget = response.body.improvementAreas[0].targets[0];
         // assert.equal(response.body.improvementAreas)
         done();
       });
+  });
+
+  it("does not send back user's password on creating new goal", done => {
+    assert.ok(!returnedUser.password);
+    done();
   });
 
   it("added the correct time period to db", done => {

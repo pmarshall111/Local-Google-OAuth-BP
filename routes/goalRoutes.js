@@ -60,6 +60,8 @@ module.exports = app => {
         }
       });
 
+      updatedUser.password = null;
+
       res.send(updatedUser);
     } catch (e) {
       // console.log(e);

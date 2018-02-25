@@ -4,6 +4,12 @@ const Schema = mongoose.Schema;
 const timeSchema = new Schema({
   timeStarted: Date,
   timeFinished: Date,
+  sessions: [
+    {
+      timeStarted: Date,
+      timeFinished: Date
+    }
+  ],
   tags: [String],
   mood: Number,
   user: { type: Schema.Types.ObjectId, ref: "users" }

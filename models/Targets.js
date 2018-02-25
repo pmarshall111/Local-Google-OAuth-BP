@@ -11,8 +11,6 @@ const targetSchema = new Schema({
   fillAllWeeks: { type: Boolean, default: true }
 });
 
-//we don't remove time in here as it may apply to other targetcollections
-
 const Targets = mongoose.model("targets", targetSchema);
 
 module.exports = Targets;

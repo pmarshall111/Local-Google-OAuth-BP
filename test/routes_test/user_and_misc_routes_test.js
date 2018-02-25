@@ -80,17 +80,20 @@ describe("misc routes", () => {
       });
   });
 
-  it("can't add time to another user's targets", done => {
+  it("can't add time to another user's goals", done => {
     agent
       .post("/time/new")
       .send({
-        targetId: firstUser.improvementAreas[0]._id,
-        time: {
-          timeStarted: moment().hour(10),
-          timeFinished: moment(),
-          tags: ["testing, mocha, supertest"],
-          mood: 3
-        }
+        goalId: firstUser.improvementAreas[0]._id,
+        time: [
+          {
+            timeStarted: moment().hour(10),
+            timeFinished: moment(),
+            tags: ["testing, mocha, supertest"],
+            sessions: [],
+            mood: 3
+          }
+        ]
       })
       .then(response => {
         assert.ok(response.body.error);
@@ -119,15 +122,23 @@ describe("misc routes", () => {
       });
   });
 
+  var returnedUser;
+
   it("can update a user", done => {
     agent
       .post("/user/update")
       .send({ email: "test2", password: "test2" })
       .then(response => {
         // console.log(response);
+        returnedUser = response.body;
         assert.equal(response.body.email, "test2");
         done();
       });
+  });
+
+  it("does not send back user's password on updating a user", done => {
+    assert.ok(!returnedUser.password);
+    done();
   });
   //
   var User = mongoose.model("users");

@@ -44,6 +44,8 @@ module.exports = app => {
 
       var updatedUser = await user.save();
 
+      updatedUser.password = null;
+
       res.send(updatedUser);
     } catch (e) {
       console.log(e);

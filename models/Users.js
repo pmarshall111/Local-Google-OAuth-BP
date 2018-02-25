@@ -7,6 +7,7 @@ const userSchema = new Schema({
   email: String,
   password: String,
   googleID: String,
+  tags: [String],
   improvementAreas: [{ type: Schema.Types.ObjectId, ref: "improvement-areas" }]
 });
 
