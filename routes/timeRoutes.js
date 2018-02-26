@@ -4,13 +4,7 @@ const ImprovementArea = mongoose.model("improvement-areas");
 const Targets = mongoose.model("targets");
 const Time = mongoose.model("time");
 
-function requireLogIn(req, res, next) {
-  if (!req.user)
-    return res.send({
-      error: "User must be logged in"
-    });
-  next();
-}
+const requireLogIn = require("../services/helpers/requireLogIn");
 
 module.exports = app => {
   app.post("/time/new", requireLogIn, async (req, res) => {

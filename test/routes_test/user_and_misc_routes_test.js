@@ -4,7 +4,7 @@
 
 const assert = require("assert");
 const request = require("supertest");
-const agent = require("./time_routes_test");
+const agent = require("./badge_routes_test");
 const mongoose = require("mongoose");
 const moment = require("moment");
 moment().format();

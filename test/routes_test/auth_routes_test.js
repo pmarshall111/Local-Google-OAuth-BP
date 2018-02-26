@@ -1,25 +1,11 @@
 //testing can we make an account with local strategy
 //no test for oauth20
 
-require("../../index");
 var app = require("../../app");
 const assert = require("assert");
 const request = require("supertest");
 const agent = request.agent(app);
 const mongoose = require("mongoose");
-
-before(function(done) {
-  this.timeout(5000);
-  // mongoose.connection.collections.users.drop(() => done())
-  Promise.all([
-    mongoose.model("users").remove({}),
-    mongoose.model("improvement-areas").remove({}),
-    mongoose.model("targets").remove({}),
-    mongoose.model("time").remove({})
-  ]).then(() => {
-    done();
-  });
-});
 
 describe("auth routes", () => {
   it("can create a local account via /auth/signup and recieve cookie", function(done) {

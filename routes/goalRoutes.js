@@ -7,13 +7,7 @@ const Time = mongoose.model("time");
 const moment = require("moment");
 moment().format();
 
-function requireLogIn(req, res, next) {
-  if (!req.user)
-    return res.send({
-      error: "User must be logged in"
-    });
-  next();
-}
+const requireLogIn = require("../services/helpers/requireLogIn");
 
 //could possibly have a merge goals route as well. possibly unneeded???
 

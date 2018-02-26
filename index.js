@@ -14,6 +14,7 @@ require("./models/Users");
 require("./models/ImprovementArea");
 require("./models/Targets");
 require("./models/Time");
+require("./models/Badges");
 
 const app = require("./app");
 const PORT = info.port;

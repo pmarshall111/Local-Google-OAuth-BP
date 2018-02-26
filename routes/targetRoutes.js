@@ -7,13 +7,7 @@ const Time = mongoose.model("time");
 const moment = require("moment");
 moment().format();
 
-function requireLogIn(req, res, next) {
-  if (!req.user)
-    return res.send({
-      error: "User must be logged in"
-    });
-  next();
-}
+const requireLogIn = require("../services/helpers/requireLogIn");
 
 module.exports = app => {
   app.post("/target/update", requireLogIn, async (req, res) => {
