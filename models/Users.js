@@ -43,11 +43,19 @@ userSchema.methods.comparePassword = function(attempt, callback) {
 
 userSchema.pre("remove", async function(next) {
   var ImprovementArea = mongoose.model("improvement-areas");
+  var Badges = mongoose.model("badges");
   var areas = this.improvementAreas;
   if (areas.length > 0) {
     //cant call remove on the model as this doesnt trigger the pre-remove tags.
     //have to find the individual document first then call remove on it
-    var toGo = await ImprovementArea.find({ _id: { $in: areas } });
+    var [toGo, removingBadges] = await Promise.all([
+      ImprovementArea.find({ _id: { $in: areas } }),
+      Badges.update(
+        { earnedBy: { $elemMatch: { user: this._id } } },
+        { $pull: { earnedBy: { user: this._id } } },
+        { multi: true }
+      )
+    ]);
     await Promise.all(toGo.map(x => x.remove()));
   }
   next();

@@ -105,8 +105,8 @@ describe("misc routes", () => {
 
   it("can remove a user", done => {
     agent.get("/user/remove").then(response => {
-      User.count().then(count => {
-        assert.equal(count, 1);
+      User.count({ email: "testNew" }).then(count => {
+        assert.equal(count, 0);
         done();
       });
     });
@@ -140,24 +140,53 @@ describe("misc routes", () => {
     assert.ok(!returnedUser.password);
     done();
   });
+
   //
   var User = mongoose.model("users");
   var ImprovementAreas = mongoose.model("improvement-areas");
   var Targets = mongoose.model("targets");
   var Time = mongoose.model("time");
+  var Badges = mongoose.model("badges");
 
   it("can remove a user and all child documents", done => {
     agent.get("/user/remove").then(response => {
       Promise.all([
-        User.count(),
-        ImprovementAreas.count(),
-        Targets.count(),
-        Time.count()
+        User.count({ _id: returnedUser._id }),
+        ImprovementAreas.count({ _id: returnedUser._id }),
+        Targets.count({ _id: returnedUser._id }),
+        Time.count({ _id: returnedUser._id })
       ]).then(results => {
-        var totalRecords = results.reduce((t, c) => (t += c), 0);
-        assert.equal(totalRecords, 0);
+        assert.deepEqual(results, [0, 0, 0, 0]);
         done();
       });
     });
   });
+
+  it("removes user from badge's earnedBy if user deletes account", done => {
+    Badges.count({ earnedBy: { $elemMatch: { user: returnedUser._id } } }).then(
+      badges => {
+        console.log(badges);
+        assert.equal(badges, 0);
+        done();
+      }
+    );
+  });
+
+  it("leaves the earnedBy array as an array", done => {
+    Badges.findOne({ title: "You Rock!" }).then(badge => {
+      console.log(badge);
+      assert.ok(Array.isArray(badge.earnedBy));
+      done();
+    });
+  });
+
+  it("earnedBy array is now empty.", done => {
+    Badges.findOne({ title: "You Rock!" }).then(badge => {
+      console.log(badge);
+      assert.ok(!badge.earnedBy.length);
+      done();
+    });
+  });
+
+  it("does not remove other users ");
 });

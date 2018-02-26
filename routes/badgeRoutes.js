@@ -11,12 +11,33 @@ module.exports = app => {
       Users.count(),
       Badges.find()
     ]);
-    //we should aim to send all badges so we can blur out the ones that haven't been unlocked yet.
-    //once we have all badges, we can turn earnedBy into a number and add a new property on it called earned.
+    var userBadges = allBadges.map(x => {
+      var { title, points, _id } = x;
 
-    //plan is to send over the total users and badges separately, then calculate
-    //the percentage
-    res.send({ totalUsers, badges });
+      if (!x.earnedBy) x.earnedBy = [];
+      var totalUsersCompleted = x.earnedBy.length,
+        percentageUnlocked = totalUsersCompleted / totalUsers * 100;
+
+      var toReturn = {
+        _id,
+        title,
+        points,
+        percentageUnlocked,
+        userCompletions: 0
+      };
+
+      var userEntry = x.earnedBy.filter(y => {
+        return y.user.toString() == req.user._id.toString();
+      });
+
+      if (userEntry.length) {
+        toReturn.userCompletions = userEntry[0].times;
+      }
+
+      return toReturn;
+    });
+
+    res.send(userBadges);
   });
 
   app.post("/badges/new", requireAdmin, async (req, res) => {
