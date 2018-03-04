@@ -35,7 +35,6 @@ const localSignup = new LocalStrategy(LocalOptions, function(
   password,
   done
 ) {
-  console.log(email, password);
   if (!email || !password)
     return done(null, false, { error: "Both email and password are required" });
   //check if user already exists with that email.

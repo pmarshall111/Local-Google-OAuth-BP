@@ -36,15 +36,11 @@ module.exports = app => {
       })
     );
 
-    console.log(newTimes);
-
     const updatedGoal = await ImprovementArea.findOneAndUpdate(
       { _id: oneGoal[0]._id },
       { $addToSet: { time: { $each: newTimes } } },
       { new: true }
     );
-
-    console.log(updatedGoal);
 
     var updatedUser = await Users.findOneAndUpdate(
       { _id: req.user._id },
@@ -59,10 +55,8 @@ module.exports = app => {
 
     updatedUser.password = null;
 
-    console.log(updatedUser);
-    console.log(
-      updatedUser.improvementAreas[updatedUser.improvementAreas.length - 1]
-    );
+    //now we have added time, check if we unlocked badges
+
     res.send(updatedUser);
     // req.user.improvementAreas = req.user.improvementAreas.map(x => {
     //   if (x._id.toString() == updatedGoal._id.toString()) return updatedGoal;

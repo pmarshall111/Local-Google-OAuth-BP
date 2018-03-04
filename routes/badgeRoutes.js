@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Users = mongoose.model("users");
 const Badges = mongoose.model("badges");
+const moment = require("moment");
 
 const requireLogIn = require("../services/helpers/requireLogIn");
 const requireAdmin = require("../services/helpers/requireAdmin");
@@ -23,7 +24,8 @@ module.exports = app => {
         title,
         points,
         percentageUnlocked,
-        userCompletions: 0
+        userCompletions: 0,
+        lastEarned: null
       };
 
       var userEntry = x.earnedBy.filter(y => {
@@ -32,6 +34,7 @@ module.exports = app => {
 
       if (userEntry.length) {
         toReturn.userCompletions = userEntry[0].times;
+        toReturn.lastEarned = userEntry[0].lastEarned;
       }
 
       return toReturn;
@@ -66,16 +69,8 @@ module.exports = app => {
       });
     } else {
       usersEntry[0].times++;
+      usersEntry[0].lastEarned = moment().startOf("day");
     }
-    // } else {
-    //   unlockedBadge.earnedBy = [
-    //     {
-    //       user: req.user._id,
-    //       times: 1
-    //     }
-    //   ];
-    // }
-    // console.dir(unlockedBadge);
     var updatedBadge = await unlockedBadge.save();
 
     res.send(updatedBadge);
