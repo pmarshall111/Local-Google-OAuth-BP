@@ -44,6 +44,7 @@ module.exports = function(app) {
   //local routes. Added in callback function so we can deal with errors from authentication.
   //http://www.passportjs.org/docs/authenticate/ at the bottom
   app.post("/auth/login", function(req, res, next) {
+    console.log(req);
     if (req.user)
       return res.status(400).send({ error: "User already logged in" });
     passport.authenticate("local-login", (err, user, info) => {

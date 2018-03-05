@@ -8,7 +8,7 @@ function createAccount() {
   Users.count({ email: "dummy" }).then(count => {
     if (count === 1) return;
     console.log(
-      "Process to take approx 2 mins \n __________________ \n adding 3 improvement areas and 300 times to the following user: \n __________________ \n Email: dummy \n Password: dummy"
+      "\n ------------------------- \n Process to take approx 2 mins. \n Adding 3 improvement areas and 300 times to the following user: \n ------------------------- \n Email: dummy \n Password: dummy"
     );
     agent
       .post("/auth/signup")
@@ -80,8 +80,8 @@ async function addTime(id) {
       moment(createdDate).hour(22)
     )
   ) {
-    var randomInterval = Math.floor(Math.random() * 10) / 5;
-    var randomIntervalTwo = Math.floor(Math.random() * 10) / 5;
+    var randomInterval = 1 + Math.floor(Math.random() * 10) / 5;
+    var randomIntervalTwo = 1 + Math.floor(Math.random() * 10) / 5;
 
     var timeStarted = sessions[sessions.length - 1].timeFinished.add(
       randomInterval,

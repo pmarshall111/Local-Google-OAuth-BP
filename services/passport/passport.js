@@ -9,12 +9,20 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    var user = await User.findOne({ _id: id }).populate({
-      path: "improvementAreas",
-      populate: {
-        path: "targets time"
-      }
-    });
+    var user = await User.findOne({ _id: id })
+      .populate({
+        path: "days",
+        populate: {
+          path: "time"
+        },
+        options: { sort: { day: 1 } }
+      })
+      .populate({
+        path: "improvementAreas",
+        populate: {
+          path: "targets"
+        }
+      });
 
     user.password = null;
     done(null, user);

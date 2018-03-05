@@ -5,13 +5,7 @@ const areaSchema = new Schema({
   subject: String,
   startDate: Date,
   user: { type: Schema.Types.ObjectId, ref: "users" },
-  targets: [{ type: Schema.Types.ObjectId, ref: "targets" }],
-  time: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "time"
-    }
-  ]
+  targets: [{ type: Schema.Types.ObjectId, ref: "targets" }]
 });
 
 areaSchema.pre("remove", async function(next) {
@@ -19,7 +13,6 @@ areaSchema.pre("remove", async function(next) {
   var Time = mongoose.model("time");
   var User = mongoose.model("users");
   var myTargets = this.targets,
-    myTime = this.time,
     myUser = this.user;
   var result = await Promise.all([
     User.findOneAndUpdate(
@@ -28,7 +21,7 @@ areaSchema.pre("remove", async function(next) {
       { new: true }
     ),
     Targets.remove({ _id: { $in: myTargets } }),
-    Time.remove({ _id: { $in: myTime } })
+    Time.remove({ goal: this._id })
   ]);
   next();
 });

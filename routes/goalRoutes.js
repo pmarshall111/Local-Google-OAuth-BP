@@ -47,12 +47,20 @@ module.exports = app => {
         { _id: req.user._id },
         { $push: { improvementAreas: newGoal._id } },
         { new: true }
-      ).populate({
-        path: "improvementAreas",
-        populate: {
-          path: "targets time"
-        }
-      });
+      )
+        .populate({
+          path: "days",
+          populate: {
+            path: "time"
+          },
+          options: { sort: { day: 1 } }
+        })
+        .populate({
+          path: "improvementAreas",
+          populate: {
+            path: "targets"
+          }
+        });
 
       updatedUser.password = null;
 

@@ -59,12 +59,20 @@ module.exports = app => {
     //NOT COMPLETE
     try {
       //STEP 1: get users with same email
-      var users = await Users.find({ email: req.user.email }).populate({
-        path: "improvementAreas",
-        populate: {
-          path: "targets time"
-        }
-      });
+      var users = await Users.find({ email: req.user.email })
+        .populate({
+          path: "days",
+          populate: {
+            path: "time"
+          },
+          options: { sort: { day: 1 } }
+        })
+        .populate({
+          path: "improvementAreas",
+          populate: {
+            path: "targets"
+          }
+        });
 
       var mainUser = users[0];
 

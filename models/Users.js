@@ -8,7 +8,8 @@ const userSchema = new Schema({
   password: String,
   googleID: String,
   tags: [String],
-  improvementAreas: [{ type: Schema.Types.ObjectId, ref: "improvement-areas" }]
+  improvementAreas: [{ type: Schema.Types.ObjectId, ref: "improvement-areas" }],
+  days: [{ type: Schema.Types.ObjectId, ref: "days" }]
 });
 
 //encrypting the password before it's saved to the database.
@@ -44,6 +45,7 @@ userSchema.methods.comparePassword = function(attempt, callback) {
 userSchema.pre("remove", async function(next) {
   var ImprovementArea = mongoose.model("improvement-areas");
   var Badges = mongoose.model("badges");
+  var Days = mongoose.model("days");
   var areas = this.improvementAreas;
   if (areas.length > 0) {
     //cant call remove on the model as this doesnt trigger the pre-remove tags.
@@ -54,7 +56,8 @@ userSchema.pre("remove", async function(next) {
         { earnedBy: { $elemMatch: { user: this._id } } },
         { $pull: { earnedBy: { user: this._id } } },
         { multi: true }
-      )
+      ),
+      Days.remove({ _id: { $in: this.days } })
     ]);
     await Promise.all(toGo.map(x => x.remove()));
   }

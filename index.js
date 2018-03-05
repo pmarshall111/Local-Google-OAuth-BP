@@ -14,12 +14,14 @@ mongoose
     require("./models/Users");
     require("./models/ImprovementArea");
     require("./models/Targets");
+    require("./models/Days");
     require("./models/Time");
     require("./models/Badges");
 
     //adding badges if no badges
     await require("./services/helpers/writeBadgesToDb");
 
+    //adding test user if in dev
     if (env === "development")
       require("./services/helpers/createUserDummyData");
 
