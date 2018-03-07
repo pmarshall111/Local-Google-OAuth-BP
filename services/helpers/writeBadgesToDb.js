@@ -119,7 +119,7 @@ async function addBadges() {
 
   var sent = await Badges.bulkWrite(sendToMongo);
 
-  console.log(`Inserted ${sent.insertedIds.length} badges to database`);
+  console.log(`Inserted ${sent.insertedCount} badges to database`);
 }
 
 addBadges();

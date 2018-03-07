@@ -57,7 +57,7 @@ userSchema.pre("remove", async function(next) {
         { $pull: { earnedBy: { user: this._id } } },
         { multi: true }
       ),
-      Days.remove({ _id: { $in: this.days } })
+      Days.remove({ user: this._id })
     ]);
     await Promise.all(toGo.map(x => x.remove()));
   }

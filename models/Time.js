@@ -14,7 +14,7 @@ const timeSchema = new Schema({
   tags: [String],
   mood: Number,
   user: { type: Schema.Types.ObjectId, ref: "users" },
-  totalTime: Date
+  totalHours: Number
 });
 
 const Time = mongoose.model("time", timeSchema);

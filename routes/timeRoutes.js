@@ -28,41 +28,50 @@ module.exports = app => {
     var newTimes = await Promise.all(
       time.map(x => {
         var { timeStarted, timeFinished, sessions } = x;
-        var totalTime = sessions.reduce((t, c) => {
+        var totalHours = sessions.reduce((t, c) => {
           var diff = moment(c.timeFinished).diff(
             moment(c.timeStarted),
             "hours",
             true
           );
-          t.add(diff, "hours");
+          // console.log({ diff });
+          t += diff;
           return t;
-        }, moment(0));
+        }, 0);
         return Time.create({
+          goal: goalId,
           timeStarted,
           timeFinished,
           sessions,
           mood,
           tags,
-          totalTime
+          totalHours,
+          user: req.user._id
         });
       })
     );
 
+    //plan is to store a time for each of the goalIds on the day to make calculation server side quicker
+    var goal = goalId.toString();
+    var subject = `totalHours.${oneGoal[0].subject}`;
+    //strict is required in options as otherwise mongoose won't let you add fields not in Schema
     var newDates = await Promise.all(
       newTimes.map(x => {
+        if (!x.goal) console.log({ x, body: req.body });
         return Days.findOneAndUpdate(
-          { day: moment(x.timeStarted).startOf("day") },
-          { $push: { time: x } },
+          { day: moment(x.timeStarted).startOf("day"), user: req.user._id },
+          { $push: { time: x }, $inc: { [subject]: x.totalHours.toFixed(1) } },
           {
             upsert: true,
-            new: true
+            new: true,
+            strict: false
           }
         );
       })
     );
 
-    // console.log({ newTimes, newDates });
-
+    //we don't populate individual times as we have already calculated the total hours for each area.
+    //if we want individual data for the day and week, we can make an ajax request for those times.
     var updatedUser = await Users.findOneAndUpdate(
       { _id: req.user._id },
       { $addToSet: { tags: { $each: tags }, days: { $each: newDates } } },
@@ -76,9 +85,6 @@ module.exports = app => {
       })
       .populate({
         path: "days",
-        populate: {
-          path: "time"
-        },
         options: { sort: { day: 1 } }
       });
 
@@ -93,5 +99,16 @@ module.exports = app => {
     // });
 
     // res.send(req.user);
+  });
+
+  //needs testing
+  app.get("/time/detailed", requireLogIn, async (req, res) => {
+    var times = await Time.find({
+      user: req.user._id
+    })
+      .populate({ path: "goal", select: "subject" })
+      .sort({ timeStarted: 1 });
+
+    res.send({ times });
   });
 };

@@ -12,9 +12,6 @@ passport.deserializeUser(async (id, done) => {
     var user = await User.findOne({ _id: id })
       .populate({
         path: "days",
-        populate: {
-          path: "time"
-        },
         options: { sort: { day: 1 } }
       })
       .populate({
